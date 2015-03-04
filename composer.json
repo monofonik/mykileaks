@@ -1,9 +1,17 @@
 {
     "name": "monofonik/mykileaks",
-    "version": "0.1.0",
+    "version": "1.0.0-dev",
     "description": "myki statement assessment classes used by http://mykileaks.org",
     "license": "GPL-3.0+",
     "autoload": {
         "psr-4": {"MykiLeaks\\": "lib/"}
-    }
+    },
+    "authors": [
+        {
+            "name": "Jonathan Mullins",
+            "email": "mondojono@gmail.com",
+            "homepage": "http://monofonik.net",
+            "role": "Developer"
+        },
+    ]
 }
