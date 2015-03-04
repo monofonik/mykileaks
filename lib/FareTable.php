@@ -1,35 +1,35 @@
 <?php
-
 namespace MykiLeaks;
 
 class FareTable
 {
-
     private static $fares = [
-        'adult'=>[
-            'zone1'=>[2.94, 3.02, 3.28, 3.50, 3.58],
-            'zone2'=>[2.02, 2.08, 2.26, 2.42, 2.48],
-            'zone1+2'=>[4.96, 5.10, 5.54, 5.92, 6.06],
+        'adult' => [
+            'zone1'     => [2.94, 3.02, 3.28, 3.50, 3.58, 3.76],
+            'zone2'     => [2.02, 2.08, 2.26, 2.42, 2.48, 2.60],
+            'zone1+2'   => [4.96, 5.10, 5.54, 5.92, 6.06, 3.76],
         ],
-        'concession'=>[
-            'zone1'=>[1.47, 1.51, 1.64, 1.75, 1.79],
-            'zone2'=>[1.01, 1.04, 1.13, 1.21, 1.24],
-            'zone1+2'=>[2.48, 2.55, 2.77, 2.96, 3.03],
+        'concession' => [
+            'zone1'     => [1.47, 1.51, 1.64, 1.75, 1.79, 1.88],
+            'zone2'     => [1.01, 1.04, 1.13, 1.21, 1.24, 1.30],
+            'zone1+2'   => [2.48, 2.55, 2.77, 2.96, 3.03, 1.88],
         ],
-        'weekend'=>[3.00, 3.00, 3.30, 3.50, 6.00],
+        'weekend'       => [3.00, 3.00, 3.30, 3.50, 6.00, 6.00],
     ];
 
     private static function getFareIndex($date)
     {
         $fareIndex = 0;
-        if ($date >= new \DateTime('2011-03-12'))
+        if ($date >= new \DateTimeImmutable('2011-03-12'))
             $fareIndex = 1;
-        if ($date >= new \DateTime('2012-01-01'))
+        if ($date >= new \DateTimeImmutable('2012-01-01'))
             $fareIndex = 2;
-        if ($date >= new \DateTime('2013-01-01'))
+        if ($date >= new \DateTimeImmutable('2013-01-01'))
             $fareIndex = 3;
-        if ($date >= new \DateTime('2014-01-01'))
+        if ($date >= new \DateTimeImmutable('2014-01-01'))
             $fareIndex = 4;
+        if ($date >= new \DateTimeImmutable('2015-01-01'))
+            $fareIndex = 5;
 
         return $fareIndex;
     }
@@ -37,7 +37,8 @@ class FareTable
 	public static function getProductFare(
         $date,
         $adult,
-        $zones )
+        $zones
+    )
 	{
 		$fareType = $adult ? 'adult' : 'concession';
         

@@ -7,9 +7,7 @@ class Submission
 
 	public $auditor;
     public $dataLayer;
-
     public $md5;
-	public $data;
 
 	public function __construct($auditor, $dataLayer=null)
 	{
@@ -17,84 +15,41 @@ class Submission
 		$this->dataLayer = $dataLayer;
 	}
 	
-	public function submit($data, $filename=null, $filetime=null)
+	public function submit($data, $submissionTime=null)
 	{
-        $this->data = $data;
+        if (!$submissionTime)
+            $submissionTime = new \DateTime("now", new \DateTimeZone("Australia/Melbourne"));
 
-        // Hack to fix empty description on some reimbursements
-        $pattern = "/Reimbursement[[:blank:]]*-[[:blank:]]*Reimbursement/";
-        $data = preg_replace($pattern, "Reimbursement               -       -     Reimbursement", $data);
+        if (!$submissionTime instanceof \DateTime)
+            throw new \InvalidArgumentException();
 
-        // Regex for event line
-        $pattern = '/^((\d\d\/){2}\d{4}[[:blank:]]+(\d\d:){2}\d\d)[[:blank:]]{2,}(.*?)[[:blank:]]{2,}(.*?)[[:blank:]]{2,}(.*?)[[:blank:]]{2,}(.*?)[[:blank:]]{2,}(.*?)[[:blank:]]{2,}(.*?)[[:blank:]]{2,}(.*?)$/m';
+        $this->md5 = md5($data);
+        $events = Event::eventsFromStatement($data);
 
-        $md5 = null;
-        
-        // Parse text and create Events
-        if (preg_match_all($pattern, $data, $matches)) {
-
-            $events = array();
-            $prevRaw = null;
-            $md5 = md5(json_encode($matches));
-
-            $n = count($matches[0]);
-            for ($i = 0; $i < $n; $i++) {
-
-            	// Check for a dupe
-            	$raw = $matches[0][$i];
-            	if ($raw == $prevRaw)
-            		continue;
-
-                $date =  \DateTime::createFromFormat(
-                    'd/m/Y H:i:s', 
-                    $matches[1][$i]
-                    //new \DateTimeZone("Australia/Melbourne")
-                );
-
-                if (!$date)
-                    throw new SubmissionException('Unable to parse date from statement event.');
-
-                $event = array(
-                    'sequence'=>$i,
-                    'raw'=>$raw,
-                    'timestamp'=> $date,
-                    'type'=>$matches[4][$i],
-                    'service'=>$matches[5][$i],
-                    'zone'=>$matches[6][$i],
-                    'description'=>$matches[7][$i],
-                    'credit'=> $matches[8][$i] == '-' ? null : floatval(ltrim($matches[8][$i], '$')),
-                    'debit'=> $matches[9][$i] == '-' ? null : floatval(ltrim($matches[9][$i], '$')),
-                    'balance'=> $matches[10][$i] == '-' ? null : floatval(ltrim($matches[10][$i], '$')),
-                );
-
-	            $events[] = new Event($event, $i);
-	            $prevRaw = $raw;
-            }
-
-            // Determine if we're dealing with a concession statement
+        if ($events) {       
             $adult = $this->isAdult($events);
-
-            // Audit the events and record results
             $audit = $this->auditor->audit($events, $adult);
 
-            $inserted = $this->dataLayer->logSubmission(
-                $filename,
-                $md5, 
-                $adult, 
-                $audit,
-                $filetime
-            ); 
-
+            $inserted = false;
+            if ($this->dataLayer) {
+                $inserted = $this->dataLayer->logSubmission(
+                    $this->md5, 
+                    $adult, 
+                    $audit,
+                    $submissionTime
+                );
+            }
             return ["audit" => $audit, "inserted" => $inserted];
-
-        } else
-            throw new SubmissionException('No trip data found');
+        } 
+        else
+            throw new InvalidArgumentException('No trip data found');
 	}
 
     /**
-     * Attempts to determine if the submitted file contains data for an adult or concession card
-     * using the fare table. If in doubt assumes concession
-     */
+     * Sneaky function to intelligently guess if a submission is adult
+     * or concession. Defaults to adult when a substantiated guess can't 
+     * be made.
+     **/
     public function isAdult($events) {
         $nAdult = 0;
         $nConc = 0;
@@ -109,7 +64,3 @@ class Submission
     }
 }
 
-class SubmissionException extends \Exception
-{
-
-}

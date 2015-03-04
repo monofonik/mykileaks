@@ -1,5 +1,4 @@
 <?php
-
 namespace MykiLeaks;
 
 class Auditor {
@@ -10,6 +9,7 @@ class Auditor {
     {
         $this->adult = $adult;
 
+        // Reorder until stable and mark duplicates
         $changed = true;
         while ($changed) { $changed = $this->fixOrder($events); }
         $this->markDuplicates($events);
@@ -38,9 +38,9 @@ class Auditor {
             $products = array_map(function($e) { return $e->asArray(); }, $products);
                 
             // Convert event timestamps to MongoDates
-            foreach ($group->events as &$e) {
-                $e->timestamp = new \MongoDate($e->timestamp->getTimestamp());
-            }
+            // foreach ($group->events as &$e) {
+            //     $e->timestamp = new \MongoDate($e->timestamp->getTimestamp());
+            // }
 
             // Update the totals
             if ($errors)
@@ -55,6 +55,7 @@ class Auditor {
             $summary['totalReimbursement'] += $group->totalReimbursements();
            
             $results[$date] = [
+                // TODO: something about this...
                 '_id' => md5(json_encode($group->events)),
                 'date' => $group->date,
                 'assessable' => !(boolean)$errors,
@@ -87,6 +88,7 @@ class Auditor {
                 'balanceErrors' => $group->balanceErrors,
 
                 'events' => $group->events,
+                // 'pretty' => $group->prettyPrint(),
             ];
         }
         return [
@@ -97,9 +99,9 @@ class Auditor {
     }
 
     /**
-     * Corrects the order of the event list. Occasionally when a passenger touches on after not 
-     * touching of the previous day, the touch off (defaut fare) incorrectly appears after the 
-     * touch on. Returns true if order was changed
+     * Correct the order of the event list. Occasionally when a passenger touches 
+     * on after not touching of the previous day, the touch off (defaut fare) 
+     * incorrectly appears after the touch on. Returns true if order was changed
      */
     protected function fixOrder(&$events)
     {
@@ -113,9 +115,14 @@ class Auditor {
             $dif = $next->timestamp->getTimestamp() - $cur->timestamp->getTimestamp();
 
             // Change the order if within 3secs and ensure touch off is first / touch on is last
-            if ($dif <= 3 && (($cur->type & Event::TYPE_TOUCHON && $next->type ^ Event::TYPE_TOUCHON) ||
-                ($next->type & Event::TYPE_TOUCHOFF && $cur->type ^ Event::TYPE_TOUCHOFF))) {
-                
+            if (
+                $dif <= 3 
+                && (
+                    ($cur->type & Event::TYPE_TOUCHON && $next->type ^ Event::TYPE_TOUCHON) ||
+                    ($next->type & Event::TYPE_TOUCHOFF && $cur->type ^ Event::TYPE_TOUCHOFF)
+                )
+            ) 
+            {
                 $events[$i] = $next;
                 $events[$i+1] = $cur;
                 $cur->reordered = $next->reordered = true;
@@ -136,7 +143,8 @@ class Auditor {
     }
 
     /**
-     * Groups events according to days. Considers next day touch-offs and after midnight travel
+     * Groups events according to days. Considers next day touch-offs and after 
+     * midnight travel
      */
     protected function groupEvents($events)
     {
@@ -167,7 +175,7 @@ class Auditor {
 
                 if ($curGroup && $curDate)
                     $days[$curDate] = new EventGroup(
-                        \DateTime::createFromFormat("Ymd", $curDate), 
+                        \DateTimeImmutable::createFromFormat("Ymd", $curDate), 
                         $this->adult,
                         $curGroup, 
                         $closingBal);

@@ -112,7 +112,7 @@ class Event
         $this->balance = $event['balance'];
 
         $this->defaultFare = 
-            (boolean)preg_match("/Default Fare/i", $event['type']);// ||
+            (boolean)preg_match("/Default Fare/i", $event['type']);
 
         $pCredit = $event['credit'] ? number_format($event['credit'], 2) : $event['credit'];        
         $pDebit = $event['debit'] ? number_format($event['debit'], 2) : $event['debit'];
@@ -127,5 +127,57 @@ class Event
             str_pad($pDebit ? number_format($pDebit, 2) : "", 9, " ", STR_PAD_LEFT) .
             str_pad($pCredit ? number_format($pCredit, 2) : "", 9, " ", STR_PAD_LEFT) .
             str_pad($pBalance ? number_format($pBalance, 2) : "", 9, " ", STR_PAD_LEFT);
+    }
+
+    static function eventsFromStatement($data)
+    {
+          // Hack to fix empty description on some reimbursements
+        $pattern = "/Reimbursement[[:blank:]]*-[[:blank:]]*Reimbursement/";
+        $data = preg_replace($pattern, "Reimbursement               -       -     Reimbursement", $data);
+
+        // Regex for event line
+        $pattern = '/^((\d\d\/){2}\d{4}[[:blank:]]+(\d\d:){2}\d\d)[[:blank:]]{2,}(.*?)[[:blank:]]{2,}(.*?)[[:blank:]]{2,}(.*?)[[:blank:]]{2,}(.*?)[[:blank:]]{2,}(.*?)[[:blank:]]{2,}(.*?)[[:blank:]]{2,}(.*?)$/m';
+        
+        // Parse text and create Events
+        if (preg_match_all($pattern, $data, $matches)) {
+
+            $events = [];
+            $prevRaw = null;
+
+            $n = count($matches[0]);
+            for ($i = 0; $i < $n; $i++) {
+
+                // Check for a dupe
+                $raw = $matches[0][$i];
+                if ($raw == $prevRaw)
+                    continue;
+
+                $date =  \DateTimeImmutable::createFromFormat(
+                    'd/m/Y H:i:s', 
+                    $matches[1][$i],
+                    new \DateTimeZone("Australia/Melbourne")
+                );
+
+                if (!$date)
+                    throw new InvalidArgumentException('Unable to parse date from statement event.');
+
+                $event = array(
+                    'sequence'=>$i,
+                    'raw'=>$raw,
+                    'timestamp'=> $date,
+                    'type'=>$matches[4][$i],
+                    'service'=>$matches[5][$i],
+                    'zone'=>$matches[6][$i],
+                    'description'=>$matches[7][$i],
+                    'credit'=> $matches[8][$i] == '-' ? null : floatval(ltrim($matches[8][$i], '$')),
+                    'debit'=> $matches[9][$i] == '-' ? null : floatval(ltrim($matches[9][$i], '$')),
+                    'balance'=> $matches[10][$i] == '-' ? null : floatval(ltrim($matches[10][$i], '$')),
+                );
+
+                $events[] = new Event($event, $i);
+                $prevRaw = $raw;
+            }
+            return $events;
+        }
     }
 }

@@ -22,6 +22,7 @@ class EventGroup
 	public $hasMissingTouchOn = false;
 	public $hasUnsupportedZones = false;
 
+	/* Generated */
 	private $products = null;
 
 	public function __construct($date, $adult, $events, $openingBal)
@@ -31,9 +32,6 @@ class EventGroup
 
 		$this->date = $date;
 		$this->adult = $adult;
-
-		$this->date->setTime(0, 0, 0);
-
 		$this->events = $events;
 
 		// No opening balance can be resolved with a card purchase
@@ -52,9 +50,13 @@ class EventGroup
 			$this->hasUnsupportedZones = $this->hasUnsupportedZones || $e->zone & Event::ZONE_UNSUPPORTED;
 
 			// If an event is a next day touch off, mark it as a default fare
-			if ($e->type & Event::TYPE_TOUCHOFF && 
-				($e->timestamp->getTimestamp() - 60*60*4) - $this->date->getTimestamp() > 24*60*60)
+			if (
+				$e->type & Event::TYPE_TOUCHOFF && 
+				$e->timestamp >= $this->date->add(new \DateInterval("PT4H"))
+			)
+			{
 				$e->defaultFare = true;
+			}
 
 			// Update travel total
             if ($e->type & Event::TYPE_TRAVEL) {
@@ -173,8 +175,9 @@ class EventGroup
 	}
 
 	/**
-	 * Returns the products that SHOULD have been charged for a day
-	 */
+	 * Returns an array of products [[time, service, zone]...] that
+	 * SHOULD have been charged for a day
+	 * */
 	public function getProducts()
 	{
 
@@ -274,25 +277,20 @@ class EventGroup
 			return ['type'=>'product', 'cost'=>$productTotal];
 	}
 
-	private function isActive($product, $time)
-	{
-		$t = $time->getTimestamp();
-		$pt = $this->nextFullHour($product->time)->getTimestamp();
-		return (($t - $pt < 60 * 60 * 2) ||	(($pt - 60 * 60 * 4) % 86400 > 60 * 60 * 14)); 
-	}
-
+	// Return any currently active products
 	private function getActiveProducts($products, $time)
 	{
 		$active = [];
 
 		foreach ($products as $p) {
-			if ($this->isActive($p, $time))
+			if ($p->isActiveAt($time))
 				$active[] = $p;
 		}
 
 		return $active;
 	}
 
+	// Returns the active zones at a given time
 	private function getActiveZones($products, $time) 
 	{
 
@@ -319,7 +317,8 @@ class EventGroup
 		return $active;
 	}
 
-	private function productRequired(&$products, $time, $zone)
+	// Returns the required product for travel
+	private function productRequired($products, $time, $zone)
 	{
 		$active = $this->getActiveZones($products, $time);
 
@@ -346,7 +345,7 @@ class EventGroup
 	private function attemptUpgrade(&$products, $time, $zone)
 	{
 		foreach ($products as &$p) {
-			if ($p->zone & Event::ZONE_1OR2 && $this->isActive($p, $time)) {
+			if ($p->zone & Event::ZONE_1OR2 && $p->isActiveAt($time)) {
 				$p->zone = $zone;
 				return true;
 			}
@@ -354,9 +353,4 @@ class EventGroup
 		return false;
 	}
 
-	private function nextFullHour($time)
-	{
-		$plusOne = $time->format("U") + 3600;
-		return \DateTime::createFromFormat("U", floor($plusOne / 3600) * 3600);
-	}
 }

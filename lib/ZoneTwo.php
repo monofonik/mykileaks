@@ -5,7 +5,7 @@ namespace MykiLeaks;
 class ZoneTwo
 {
 	/**
-	 * Returns the line group name if stations are connected by zone two areas, false otherwise
+	 * @return line group name if stations are connected by zone two areas, false otherwise
 	 */
 	public static function areConnected($statA, $statB)
 	{
