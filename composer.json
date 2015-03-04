@@ -1,6 +1,5 @@
 {
     "name": "monofonik/mykileaks",
-    "version": "1.0.0-dev",
     "description": "myki statement assessment classes used by http://mykileaks.org",
     "license": "GPL-3.0+",
     "autoload": {
