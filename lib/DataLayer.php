@@ -3,5 +3,5 @@ namespace MykiLeaks;
 
 interface DataLayer 
 {
-    function logSubmission($md5, bool $adult, $audit, \DateTime $submitted);
+    function logSubmission($md5, $adult, $audit, \DateTime $submitted);
 }

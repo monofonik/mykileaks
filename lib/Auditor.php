@@ -37,11 +37,6 @@ class Auditor {
             // Use product array notation
             $products = array_map(function($e) { return $e->asArray(); }, $products);
                 
-            // Convert event timestamps to MongoDates
-            // foreach ($group->events as &$e) {
-            //     $e->timestamp = new \MongoDate($e->timestamp->getTimestamp());
-            // }
-
             // Update the totals
             if ($errors)
                 $summary['nonAssessable']++;
