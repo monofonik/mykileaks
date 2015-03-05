@@ -12,7 +12,7 @@ Linux and OS X.
 
 - PHP 5.6+
 - [composer](https://getcomposer.org/)
-- The CLI requires that `pdftotext` is installed and on you `$PATH`. It is used to convert the 
+- The CLI requires that `pdftotext` is installed and on your `$PATH`. It is used to convert the 
   original PDF statement to plain text.
 
 
