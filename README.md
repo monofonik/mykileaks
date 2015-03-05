@@ -1,22 +1,22 @@
-## MykiLeaks - Check your http://myki.com.au statement for overcharges
+## MykiLeaks - Check your [myki](https://www.mymyki.com.au/) statement for overcharges
 
-This project is the core PHP library that powers the http://mykileaks.org website. For more
+This project contains the core PHP library that powers the http://mykileaks.org website. For more
 information visit http://monofonik.net/2011/09/the-mykileaks-faq/.
 
-As well as the class library, a CLI tool is also provided for assessing myki statements in PDF
-format from the command line. With the required pre-requisites available it can be used on both
-Linux and OS X.
+As well as the PHP class library, a CLI tool is provided for assessing myki statements in PDF
+format from the command line. With the required pre-requisites available it can be used on Linux and 
+OS X.
 
 
 ### Pre-requisites
 
 - PHP 5.6+
 - [composer](https://getcomposer.org/)
-- The CLI requires that `pdftotext` is installed and on your `$PATH`. It is used to convert the 
+- CLI use requires that `pdftotext` is installed and on your `$PATH`. It is used to convert the 
   original PDF statement to plain text.
 
 
-### CLI usage
+### CLI
 
 ```bash
 $ php mykileaks.php /path/to/statement.pdf
@@ -26,7 +26,7 @@ Results are output in JSON format. [jq](http://stedolan.github.io/jq/) can be us
 format the output.
 
 
-### Library usage
+### PHP class library
 
 Add `monofonik/mykileaks` as a dependency to your application's composer.json:
 
@@ -45,9 +45,9 @@ Add `monofonik/mykileaks` as a dependency to your application's composer.json:
 ```
 
 
-Install:
+Update composer:
 
-    composer install
+    composer update
 
 
 Require the generated autoload.php file and you're good to go:
