@@ -1,4 +1,4 @@
-## MykiLeaks - Overcharge assessment for myki.com.au statements
+## MykiLeaks - Check your http://myki.com.au statement for overcharges
 
 This project is the core PHP library that powers the http://mykileaks.org website. For more
 information visit http://monofonik.net/2011/09/the-mykileaks-faq/.
