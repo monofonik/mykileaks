@@ -7,14 +7,14 @@ As well as the class library, a CLI tool is also provided for assessing myki sta
 format from the command line. With the required pre-requisites available it can be used on both
 Linux and OS X.
 
-### Pre-requisites
+## Pre-requisites
 
 - PHP 5.6+
 - [composer](https://getcomposer.org/)
 - The CLI requires that `pdftotext` is installed and on you `$PATH`. It is used to convert the 
   original PDF statement to plain text.
 
-### CLI usage
+## CLI usage
 
 ```bash
 $ php mykileaks.php /path/to/statement.pdf
@@ -23,13 +23,12 @@ $ php mykileaks.php /path/to/statement.pdf
 Results are output in JSON format. [jq](http://stedolan.github.io/jq/) can be used to filter and/or
 format the output.
 
-## Adding the PHP library as an application dependency
+## Class library usage
 
-Add MykiLeaks as a dependency to your application's composer.json:
+### Add MykiLeaks as a dependency to your application's composer.json:
 
 ```json
 {
-    ...
     "require": {
         "monofonik/mykileaks": "dev-master"
     },
@@ -39,23 +38,20 @@ Add MykiLeaks as a dependency to your application's composer.json:
             "url": "https://github.com/monofonik/mykileaks.git",
         }
     ]
-    ...
 }
 ```
 
-Install:
+### Install
 
     composer install
 
-Require the generated autoload file:
 
-    require /path/to/project/vendor/autoload.php";
-
-## Using the library
+### Require the generated autoload.php file and you're good to go 
 
 ```php
     <?php 
 
+    require "/path/to/project/vendor/autoload.php";
     $statement = file_get_contents("/path/to/statement.txt");
     $submission = new MykiLeaks\Submission(new MyliLeaks\Auditor());
     $assessment = $submission->submit($statement);
