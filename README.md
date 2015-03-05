@@ -50,7 +50,7 @@ Update composer:
     composer update
 
 
-Require the generated autoload.php file and you're good to go:
+Require the generated `autoload.php` file and you're good to go:
 
 ```php
     <?php 
