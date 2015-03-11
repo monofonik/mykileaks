@@ -15,6 +15,13 @@ Class Product
 		$this->zone = $zone;
 	}
 
+	public static function nextFullHour($time)
+    {
+        $next = $time->add(new \DateInterval("PT1H"));
+        $next = $next->setTime($next->format("H"), 0);
+        return $next;
+    }
+
 	public function isActiveAt(\DateTimeImmutable $time)
 	{
 		return $time < $this->expires();
@@ -46,13 +53,6 @@ Class Product
 	{
 		return FareTable::getProductFare($this->time, $this->adult, $this->zone);
 	}
-
-	public function nextFullHour($time)
-    {
-        $next = $time->add(new \DateInterval("PT1H"));
-        $next = $next->setTime($next->format("H"), 0);
-        return $next;
-    }
 
 	public function asArray()
 	{
