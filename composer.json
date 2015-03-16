@@ -12,5 +12,8 @@
             "homepage": "http://monofonik.net",
             "role": "Developer"
         }
-    ]
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "~4.5"
+    }
 }

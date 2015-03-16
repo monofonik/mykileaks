@@ -17,29 +17,60 @@ class Acceptance extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider dataTestCalculatedProducts
      */
-    function testCalculatedProducts($file, $date, $expectedProducts)
+    function testCalculatedProducts($date, $expectedProducts, $tripData)
     {
-        $data = file_get_contents(__DIR__."/data/$file.txt");
-        $events = Event::eventsFromStatement($data);
-        $results = $this->auditor->audit($events)['results'];
-        $products = $results[$date]['products'];
+        $events = Event::eventsFromStatement($tripData);
+        $allResults = $this->auditor->audit($events)['results'];
+        $this->assertArrayHasKey($date, $allResults);
 
+        $products = $allResults[$date]['products'];
         $this->assertEquals(count($expectedProducts), count($products));
+
         foreach ($expectedProducts as $idx => $exp) {
-            $this->assertEquals($exp->asArray(), $products[$idx]);
+            $actual = $products[$idx];
+            $this->assertEquals($exp['time'], $actual['time']);
+            $this->assertEquals($exp['adult'], $actual['adult']);
+            $this->assertEquals($exp['zone'], $actual['zone']);
         }
     }
 
     function dataTestCalculatedProducts()
     {
         return [
-            // file, overcharged, [product]
+            [
+                // single product / single trip
+                "20140725",
+                [[
+                    "time" => new \DateTimeImmutable("2014-07-25 07:01:00"),
+                    "adult" => true,
+                    "zone" => 1,
+                ]],
+                <<< EOF
+24/07/2014 07:00:00   Top up     Train   1  Thornbury Station       $20.00   -      $20.00
+25/07/2014 07:01:00   Touch on   Train   1  Thornbury Station       -        -      -
+25/07/2014 08:00:00   Touch off  Train   1  Southern Cross Station  -        $3.58  $16.42
+26/07/2014 09:00:00   Touch on   Train   1  Southern Cross Station  -        -      -
+EOF
+            ],
 
-            ["a", "20140724", [
-                new Product(new \DateTimeImmutable("24-07-2014 22:28:53"), !!"adult", 1)
-            ]],
+            [
+                // single product / multiple trips
+                "20140725",
+                [[
+                    "time" => new \DateTimeImmutable("2014-07-25 07:01:00"),
+                    "adult" => true,
+                    "zone" => 1,
+                ]],
+                <<< EOF
+24/07/2014 07:00:00   Top up     Train   1  Thornbury Station       $20.00   -      $20.00
+25/07/2014 07:01:00   Touch on   Train   1  Thornbury Station       -        -      -
+25/07/2014 08:00:00   Touch off  Train   1  Southern Cross Station  -        $3.58  $16.42
+25/07/2014 08:10:00   Touch on   Train   1  Southern Cross Station  -        -      -
+25/07/2014 08:59:00   Touch off  Train   1  Richmond Station        -        -      -
+26/07/2014 09:00:00   Touch on   Train   1  Richmond Station        -        -      -
+EOF
+            ],
 
-            
         ];
     }
 }

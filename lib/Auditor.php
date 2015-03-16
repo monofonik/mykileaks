@@ -5,7 +5,7 @@ class Auditor {
     
     public $adult = true;
 
-    public function audit($events, $adult=true)
+    public function audit(array $events, $adult=true)
     {
         $this->adult = $adult;
 
