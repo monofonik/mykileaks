@@ -31,12 +31,12 @@ Class Product
 	{
 		$hour = $this->time->format("H");
 
-
 		// Products with a start time of > 6pm are valid until the last train. 4am is good enough.
-		if ($hour >= 18)
-			return $this->time->modify("04:00 tomorrow");
+		if ($hour >= 18) {
+			return $this->time->modify("tomorrow 04:00");
+		}
 		if ($hour < 4)
-			return $this->time->modify("04:00 today");
+			return $this->time->modify("today 04:00");
 		
 		// The "next full hour" rule was removed on Aug 10 2014
 		// http://www.ptua.org.au/2009/11/18/myki-qa/

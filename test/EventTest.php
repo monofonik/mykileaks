@@ -27,7 +27,7 @@ class EventTest extends \PHPUnit_Framework_TestCase
     {
         return [
             "raw"=>"",
-            "timestamp"=>new \DateTime(),//"2000-01-01 00:00:00",
+            "timestamp"=>new \DateTime(),
             "type"=>"",
             "service"=>"",
             "zone"=>"",
