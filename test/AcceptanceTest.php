@@ -24,11 +24,7 @@ class Acceptance extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey($date, $allResults);
 
         $products = $allResults[$date]['products'];
-
-                // var_dump($products);
-
         $this->assertEquals(count($expectedProducts), count($products));
-
 
         foreach ($expectedProducts as $idx => $exp) {
             $actual = $products[$idx];
@@ -38,15 +34,17 @@ class Acceptance extends \PHPUnit_Framework_TestCase
         }
     }
 
-    function testSingleTrip()
+    function testSingleTripZone1()
     {
         $this->compareProducts(
-            "20140725",
-            [[
-                "time" => new \DateTimeImmutable("2014-07-25 07:01:00"),
-                "adult" => true,
-                "zone" => Event::ZONE_1,
-            ]],
+            "20140725", 
+            [
+                [
+                    "time" => new \DateTimeImmutable("2014-07-25 07:01:00"),
+                    "adult" => true,
+                    "zone" => Event::ZONE_1,
+                ]
+            ],
             <<< EOF
 24/07/2014 07:00:00   Top up     Train   1  Thornbury Station       $20.00   -      $20.00
 25/07/2014 07:01:00   Touch on   Train   1  Thornbury Station       -        -      -
@@ -56,15 +54,17 @@ EOF
         );
     }
 
-    function testMultipleTripsWithin2Hrs()
+    function testMultipleTripsZone1Within2Hrs()
     {
         $this->compareProducts(
-            "20140725",
-            [[
-                "time" => new \DateTimeImmutable("2014-07-25 07:01:00"),
-                "adult" => true,
-                "zone" => Event::ZONE_1,
-            ]],
+            "20140725", 
+            [
+                [
+                    "time" => new \DateTimeImmutable("2014-07-25 07:01:00"),
+                    "adult" => true,
+                    "zone" => Event::ZONE_1,
+                ]
+            ],
             <<< EOF
 24/07/2014 07:00:00   Top up     Train   1  Thornbury Station       $20.00   -      $20.00
 25/07/2014 07:01:00   Touch on   Train   1  Thornbury Station       -        -      -
@@ -76,14 +76,17 @@ EOF
         );
     }
 
-    function testMultipleTripsOver2HrsAfter6pm()
+    function testMultipleTripsZone1Over2HrsAfter6pm()
     {
-        $this->compareProducts("20140725",
-            [[
-                "time" => new \DateTimeImmutable("2014-07-25 18:01:00"),
-                "adult" => true,
-                "zone" => Event::ZONE_1,
-            ]],
+        $this->compareProducts(
+            "20140725", 
+            [
+                [
+                    "time" => new \DateTimeImmutable("2014-07-25 18:01:00"),
+                    "adult" => true,
+                    "zone" => Event::ZONE_1,
+                ]
+            ],
             <<< EOF
 24/07/2014 07:00:00   Top up     Train   1  Thornbury Station       $20.00   -      $20.00
 25/07/2014 18:01:00   Touch on   Train   1  Thornbury Station       -        -      -
@@ -95,15 +98,16 @@ EOF
         );
     }
 
-    function testSingleTripMultipleZones()
+    function testSingleTripZone1And2()
     {
          $this->compareProducts(
-            "20140725", [
+            "20140725", 
+            [
                 [
                     "time" => new \DateTimeImmutable("2014-07-25 07:01:00"),
                     "adult" => true,
                     "zone" => Event::ZONE_1,
-                ],
+                ], 
                 [
                     "time" => new \DateTimeImmutable("2014-07-25 07:01:00"),
                     "adult" => true,
@@ -115,6 +119,26 @@ EOF
 25/07/2014 07:01:00   Touch on   Train   1  Thornbury Station       -        -      -
 25/07/2014 08:00:00   Touch off  Train   2  South Morang Station    -        $6.06  $13.94
 26/07/2014 09:00:00   Touch on   Train   1  Richmond Station        -        -      -
+EOF
+        );
+    }
+
+    function testSingleTripZone2()
+    {
+        $this->compareProducts(
+            "20140725", 
+            [
+                [
+                    "time" => new \DateTimeImmutable("2014-07-25 07:01:00"),
+                    "adult" => true,
+                    "zone" => Event::ZONE_2,
+                ]
+            ],
+            <<< EOF
+24/07/2014 07:00:00   Top up     Train   2  South Morang Station    $20.00   -      $20.00
+25/07/2014 07:01:00   Touch on   Train   2  South Morang Station    -        -      -
+25/07/2014 08:00:00   Touch off  Train   2  Keon Park Station       -        $2.48  $17.52
+26/07/2014 09:00:00   Touch on   Train   2  Keon Park               -        -      -
 EOF
         );
     }
