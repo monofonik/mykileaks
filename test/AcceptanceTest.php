@@ -142,4 +142,44 @@ EOF
 EOF
         );
     }
+
+    function testSingleTripZone2FromOverlap()
+    {
+        $this->compareProducts(
+            "20140725", 
+            [
+                [
+                    "time" => new \DateTimeImmutable("2014-07-25 07:01:00"),
+                    "adult" => true,
+                    "zone" => Event::ZONE_2,
+                ]
+            ],
+            <<< EOF
+24/07/2014 07:00:00   Top up     Train   1/2  Preston Station       $20.00   -      $20.00
+25/07/2014 07:01:00   Touch on   Train   1/2  Preston Station       -        -      -
+25/07/2014 08:00:00   Touch off  Train   2    Keon Park Station     -        $2.48  $17.52
+26/07/2014 09:00:00   Touch on   Train   2    Keon Park             -        -      -
+EOF
+        );
+    }
+
+    function testSingleTripZone2ToOverlap()
+    {
+        $this->compareProducts(
+            "20140725", 
+            [
+                [
+                    "time" => new \DateTimeImmutable("2014-07-25 07:01:00"),
+                    "adult" => true,
+                    "zone" => Event::ZONE_2,
+                ]
+            ],
+            <<< EOF
+24/07/2014 07:00:00   Top up     Train   2    Keon Park Station     $20.00   -      $20.00
+25/07/2014 07:01:00   Touch on   Train   2    Keon Park Station     -        -      -
+25/07/2014 08:00:00   Touch off  Train   1/2  Preston Station       -        $2.48  $17.52
+26/07/2014 09:00:00   Touch on   Train   1/2  Preston Station             -        -      -
+EOF
+        );
+    }
 }
