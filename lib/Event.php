@@ -137,11 +137,11 @@ class Event
 
         // Regex for event line
         $pattern = '/^((\d\d\/){2}\d{4}[[:blank:]]+(\d\d:){2}\d\d)[[:blank:]]{2,}(.*?)[[:blank:]]{2,}(.*?)[[:blank:]]{2,}(.*?)[[:blank:]]{2,}(.*?)[[:blank:]]{2,}(.*?)[[:blank:]]{2,}(.*?)[[:blank:]]{2,}(.*?)$/m';
+        $events = [];
         
         // Parse text and create Events
         if (preg_match_all($pattern, $data, $matches)) {
 
-            $events = [];
             $prevRaw = null;
 
             $n = count($matches[0]);
