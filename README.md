@@ -55,8 +55,8 @@ Require the generated `autoload.php` file and you're good to go:
 ```php
     <?php 
 
-    require "/path/to/project/vendor/autoload.php";
-    $statement = file_get_contents("/path/to/statement.txt");
+    require __DIR__."vendor/autoload.php";
+    $statement = file_get_contents("statement.txt");
     $submission = new MykiLeaks\Submission(new MyliLeaks\Auditor());
     $assessment = $submission->submit($statement);
     echo json_encode($assessment);
