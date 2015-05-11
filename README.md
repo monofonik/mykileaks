@@ -19,7 +19,7 @@ OS X.
 ### CLI
 
 ```bash
-$ php mykileaks.php /path/to/statement.pdf
+$ php mykileaks.php statement.pdf
 ```
 
 Results are output in JSON format. [jq](http://stedolan.github.io/jq/) can be used to filter and/or
@@ -55,7 +55,7 @@ Require the generated `autoload.php` file and you're good to go:
 ```php
     <?php 
 
-    require __DIR__."vendor/autoload.php";
+    require __DIR__."/vendor/autoload.php";
     $statement = file_get_contents("statement.txt");
     $submission = new MykiLeaks\Submission(new MyliLeaks\Auditor());
     $assessment = $submission->submit($statement);
